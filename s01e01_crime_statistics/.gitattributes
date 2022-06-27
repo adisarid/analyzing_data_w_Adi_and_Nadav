@@ -1,0 +1,2 @@
+crime_fixed_encoding.csv filter=lfs diff=lfs merge=lfs -text
+s01e01_crime_statistics/data/crime_fixed_encoding.csv filter=lfs diff=lfs merge=lfs -text
