@@ -31,3 +31,5 @@ read_and_tidy <- function(filename){
 
 epi_data_merged <- map_df(dir("data/", full.names = T) %>% tail(385),
                           read_and_tidy)
+
+write_excel_csv(epi_data_merged, "data/epi_data_merged.csv")
