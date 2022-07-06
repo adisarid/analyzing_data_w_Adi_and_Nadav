@@ -27,12 +27,7 @@ read_and_tidy <- function(filename){
   file_data
 }
 
-# demonstrate reading of current year:
-loop_base <- crossing(week_num = 1:52, year = 2015:2021) %>% 
-  filter(year <= 2021 | 
-           year == 2022 & week_num <= 23)
+# demonstrate reading:
 
-epi_data_merged <- map2_df(loop_base$week_num, loop_base$year,
-                           ~{
-                             read_and_tidy(.x, .y)
-                           })
+epi_data_merged <- map_df(dir("data/", full.names = T) %>% tail(385),
+                          read_and_tidy)
