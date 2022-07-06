@@ -33,3 +33,11 @@ epi_data_merged <- map_df(dir("data/", full.names = T) %>% tail(385),
                           read_and_tidy)
 
 write_excel_csv(epi_data_merged, "data/epi_data_merged.csv")
+
+# Totals
+epi_per_il <- epi_data_merged %>% 
+  pivot_longer(cols = Jerusalem:Ashqelon, names_to = "district", values_to = "cases") %>% 
+  group_by(disease_type, disease_type_heb, week_num, year) %>% 
+  summarize(total_cases = sum(cases)) %>% 
+  mutate(week_num = as.numeric(week_num)) %>% 
+  arrange(disease_type, year, week_num)
