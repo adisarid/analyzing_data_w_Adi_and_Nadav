@@ -12,10 +12,10 @@ library(tidyverse)
 template <- "https://www.gov.il/BlobFolder/dynamiccollectorresultitem/iwer-{week_number}-{year}/he/files_weekly-epidemiology_{year}_IWER_{week_number}_{year}.xlsx"
 year <- 2022
 
-for (week_number in 15:23){
+for (week_number in 20:22){
   file_location <- glue::glue(template)
   httr::GET(file_location,
-            httr::write_disk(glue::glue("data/files_weekly-epidemiology_{year}_IWER_{week_number}_{year}.xlsx")))
+            httr::write_disk(glue::glue("data/files_weekly-epidemiology_{year}_IWER_{week_number}_{year}.xlsx"), overwrite = TRUE))
   
   # we have to wait a bit to avoid banning
   Sys.sleep(0.3)

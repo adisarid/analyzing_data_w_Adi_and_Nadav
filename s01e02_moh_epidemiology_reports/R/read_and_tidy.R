@@ -29,10 +29,10 @@ read_and_tidy <- function(filename){
 
 # demonstrate reading:
 
-epi_data_merged <- map_df(dir("data/", full.names = T) %>% tail(385),
+epi_data_merged <- map_df(dir("data/", full.names = T) %>% tail(3),
                           read_and_tidy)
 
-write_excel_csv(epi_data_merged, "data/epi_data_merged.csv")
+# write_excel_csv(epi_data_merged, "data/epi_data_merged.csv")
 
 # Totals
 epi_per_il <- epi_data_merged %>% 
