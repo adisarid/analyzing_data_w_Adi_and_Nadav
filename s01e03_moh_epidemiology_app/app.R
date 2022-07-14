@@ -22,7 +22,7 @@ disease_over_time_data <- function(year_range = c(2019, 2022),
                                    diseases = c("Criptosporidiosis",
                                                 "Zika")){
   epi_data %>% 
-    select(disease_type, districts, year, week_num) %>% 
+    select(disease_type, all_of(districts), year, week_num) %>% 
     filter(year >= year_range[1],
            year <= year_range[2]) %>% 
     filter(disease_type %in% diseases) %>% 
@@ -37,13 +37,12 @@ disease_over_time_plot <- function(year_range = c(2019, 2022),
                                    diseases = c("Criptosporidiosis",
                                               "Zika")){
   
-  # my_col_name <- ensym(district) # TODO: Check later why this approach worked/didn't work
+  my_col_name <- sym(district)
   
   disease_over_time_data(year_range,
                          district,
                          diseases) %>% 
-    rename_at(.vars = 3, ~"cases") %>%
-    ggplot(aes(x = year, y = cases)) + 
+    ggplot(aes(x = year, y = !!my_col_name)) + 
     geom_col() + 
     facet_wrap(~disease_type, scales = "free_y") +
     ggtitle(paste0("Disease over time - year total - ", district)) + 
