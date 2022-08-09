@@ -1,6 +1,16 @@
 ---
 title: "Adi and Nadav Analyzing Data - S01E05 - Social Mobility in Israel"
+format:
+  html: 
+    self-contained: true
 ---
+
+
+```{css}
+.cell-output > pre > code {
+   direction: rtl;
+}
+```
 
 ## Background
 
