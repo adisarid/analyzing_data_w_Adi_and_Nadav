@@ -1,0 +1,133 @@
+---
+title: "Adi and Nadav Analyzing Data - S01E05 - Social Mobility in Israel"
+---
+
+## Background
+
+In this chapter we research mobility data in Israel.
+
+```{r load packages}
+#| echo: false
+#| warning: false
+#| message: false
+library(tidyverse)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| cache: true
+mobi <- readxl::read_excel("data/2022-08-09 - MobilityData.xlsx") %>% 
+  janitor::clean_names()
+```
+
+## Getting to know the data
+
+1. What kind of indices are there? 
+
+2. What years does this data cover?
+
+3. What categories do we have?
+
+4. What is the item variable?
+
+```{r basic get to know}
+
+mobi %>% 
+  count(index_name)
+
+mobi %>% 
+  count(category)
+```
+
+## Data validity
+
+Oops, we have identified some unclear "almost-duplicates" (same identifier-index-year-category-item, but different values), here they are:
+
+```{r validation duplicates}
+dups <- mobi %>% 
+  count(id, index_name, year, dt_type, category, item, sort = T) %>% 
+  filter(n > 1)
+
+dups
+
+indices_for_removal <- dups %>% 
+  distinct(index_name)
+
+clean_mobi <- mobi %>% 
+  anti_join(indices_for_removal)
+```
+What are we left with, in terms of indices for our analysis?
+
+```{r remaining indices}
+clean_mobi %>% 
+  distinct(index_name)
+```
+
+## Lets analyze "פתרון בעיות בסביבה מתוקשבת"
+
+```{r computer problem solving}
+
+computer_problems <- clean_mobi %>% 
+  filter(index_name == "פתרון בעיות בסביבה מתוקשבת")
+computer_problems
+```
+
+This leaves out only three rows of data, during 2015, and a comparison between Jews, Arabs, and Overall. It's unclear what is "פתרון בעיות בסביבה מתוקשבת".
+
+## Math Rulez!
+
+```{r math5pts}
+#| fig-width: 8
+math5pts <- clean_mobi %>% 
+  filter(index_name == "זכאות 5 יחידות מתמטיקה")
+
+ggplot(math5pts, aes(x = year, y = value, color = item)) + 
+  geom_point() +
+  geom_line() + 
+  facet_wrap(~category) + 
+  theme_bw() + 
+  ggtitle("זכאות 5 יחידות לבגרות - השוואה") + 
+  xlab("שנה") + 
+  ylab("אחוז [%]") + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Housing density
+
+What is better? a higher or lower density?
+
+```{r housing density}
+density_housing <- clean_mobi %>% 
+  filter(index_name == "צפיפות דיור")
+
+density_housing
+```
+
+### Comparing housing density by degree of religiousness
+
+```{r religiousness}
+density_housing %>% 
+  filter(str_detect(category, "מידת דתיות")) %>% 
+  filter(year == 2019) %>% 
+  filter(item != "מעורב") %>% 
+  mutate(item = factor(item,
+                       c("חילוני",
+                         "מסורתי",
+                         "דתי",
+                         "דתי מאוד",
+                         "חרדי"))) %>% 
+  ggplot(aes(x = item, y = value)) + 
+  geom_col() +
+  facet_wrap(~category) +
+  theme_bw() + 
+  ggtitle("מספר נפשות לחדר") + 
+  xlab("מידת דתיות") + 
+  ylab("ממוצע נפשות לחדר") + 
+  geom_label(aes(label = glue::glue("{round(value, 2)}"))) + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+**Note to self**: really missing from the data, the sample size that each measure is based on. Without having the sample size we can't understand if the trend we are noticing is actually significant or just a side-effect of a small sample.
+

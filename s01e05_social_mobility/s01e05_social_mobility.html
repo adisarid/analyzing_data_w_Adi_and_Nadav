@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Adi and Nadav Analyzing Data - S01E05 - Social Mobility in Israel</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="s01e05_social_mobility_files/libs/clipboard/clipboard.min.js"></script>
+<script src="s01e05_social_mobility_files/libs/quarto-html/quarto.js"></script>
+<script src="s01e05_social_mobility_files/libs/quarto-html/popper.min.js"></script>
+<script src="s01e05_social_mobility_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="s01e05_social_mobility_files/libs/quarto-html/anchor.min.js"></script>
+<link href="s01e05_social_mobility_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="s01e05_social_mobility_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="s01e05_social_mobility_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="s01e05_social_mobility_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="s01e05_social_mobility_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Adi and Nadav Analyzing Data - S01E05 - Social Mobility in Israel</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>In this chapter we research mobility data in Israel.</p>
+<div class="cell" data-hash="s01e05_social_mobility_cache/html/unnamed-chunk-1_aa4f0c7193fdde8c0f162ed1de03a786">
+
+</div>
+</section>
+<section id="getting-to-know-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="getting-to-know-the-data">Getting to know the data</h2>
+<ol type="1">
+<li><p>What kind of indices are there?</p></li>
+<li><p>What years does this data cover?</p></li>
+<li><p>What categories do we have?</p></li>
+<li><p>What is the item variable?</p></li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(index_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 101 × 2
+   index_name             n
+   &lt;chr&gt;              &lt;int&gt;
+ 1 אחוז זכאים לבגרות    756
+ 2 אלימות קשה           414
+ 3 בגרות איכותית       1163
+ 4 בגרות בקרב בני 26     30
+ 5 בגרות מצטיינת        756
+ 6 בדידות              2672
+ 7 בחירות ארציות        189
+ 8 בחירות מוניציפליות    63
+ 9 ביטוח בריאות        1081
+10 גודל כיתה            882
+# … with 91 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(category)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 48 × 2
+   category                               n
+   &lt;chr&gt;                              &lt;int&gt;
+ 1 ארצי                                1096
+ 2 אשכול אזורי                         6055
+ 3 אשכול חברתי-כלכלי                   6711
+ 4 אשכול פריפריאלי                     6213
+ 5 גיל                                 3475
+ 6 דירה בבעלות                           28
+ 7 דירה בשכירות                          32
+ 8 דירוג סוציואקונומי של ישוב המגורים    72
+ 9 דת                                  1865
+10 דת ראש משק הבית                       70
+# … with 38 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="data-validity" class="level2">
+<h2 class="anchored" data-anchor-id="data-validity">Data validity</h2>
+<p>Oops, we have identified some unclear “almost-duplicates” (same identifier-index-year-category-item, but different values), here they are:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dups <span class="ot">&lt;-</span> mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(id, index_name, year, dt_type, category, item, <span class="at">sort =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>dups</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 843 × 7
+      id index_name                           year dt_type category  item      n
+   &lt;dbl&gt; &lt;chr&gt;                               &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+ 1  4350 שביעות רצון ההורים מהחינוך בגיל הגן  2016 אחוז    גיל       NULL      5
+ 2  4380 נשים בתפקידי ניהול במגזר הציבורי     2012 אחוז    מגדר      נשים      4
+ 3  4380 נשים בתפקידי ניהול במגזר הציבורי     2013 אחוז    מגדר      נשים      4
+ 4  4380 נשים בתפקידי ניהול במגזר הציבורי     2014 אחוז    מגדר      נשים      4
+ 5  4380 נשים בתפקידי ניהול במגזר הציבורי     2015 אחוז    מגדר      נשים      4
+ 6  4380 נשים בתפקידי ניהול במגזר הציבורי     2016 אחוז    מגדר      נשים      4
+ 7  4380 נשים בתפקידי ניהול במגזר הציבורי     2017 אחוז    מגדר      נשים      4
+ 8  4380 נשים בתפקידי ניהול במגזר הציבורי     2018 אחוז    מגדר      נשים      4
+ 9  4380 נשים בתפקידי ניהול במגזר הציבורי     2019 אחוז    מגדר      נשים      4
+10   145 בגרות איכותית                        2009 אחוז    אשכול פר… 5.0       3
+# … with 833 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>indices_for_removal <span class="ot">&lt;-</span> dups <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(index_name)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>clean_mobi <span class="ot">&lt;-</span> mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(indices_for_removal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining, by = "index_name"</code></pre>
+</div>
+</div>
+<p>What are we left with, in terms of indices for our analysis?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>clean_mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(index_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 33 × 1
+   index_name                                                     
+   &lt;chr&gt;                                                          
+ 1 שביעות רצון מאזור המגורים - זיהום האוויר מפריע                 
+ 2 תחושת ביטחון                                                   
+ 3 שביעות רצון מאזור המגורים - שירותי איסוף האשפה                 
+ 4 שביעות רצון מאזור המגורים - מדרכות וכבישים                     
+ 5 הערכה עצמית של בריאות                                          
+ 6 שביעות רצון מאזור המגורים - שיתוף הפעולה של אנשים לשיפור השכונה
+ 7 לחץ                                                            
+ 8 דיכאון                                                         
+ 9 עובדים בתפקיד ניהולי                                           
+10 בדידות                                                         
+# … with 23 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="lets-analyze-פתרון-בעיות-בסביבה-מתוקשבת" class="level2">
+<h2 class="anchored" data-anchor-id="lets-analyze-פתרון-בעיות-בסביבה-מתוקשבת">Lets analyze “פתרון בעיות בסביבה מתוקשבת”</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>computer_problems <span class="ot">&lt;-</span> clean_mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(index_name <span class="sc">==</span> <span class="st">"פתרון בעיות בסביבה מתוקשבת"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>computer_problems</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 7
+     id index_name                  year dt_type category item   value
+  &lt;dbl&gt; &lt;chr&gt;                      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;  &lt;dbl&gt;
+1  4320 פתרון בעיות בסביבה מתוקשבת  2015 אחוז    ארצי     ארצי   26.6 
+2  4320 פתרון בעיות בסביבה מתוקשבת  2015 אחוז    מגזר     יהודים 33.4 
+3  4320 פתרון בעיות בסביבה מתוקשבת  2015 אחוז    מגזר     ערבים   4.00</code></pre>
+</div>
+</div>
+<p>This leaves out only three rows of data, during 2015, and a comparison between Jews, Arabs, and Overall. It’s unclear what is “פתרון בעיות בסביבה מתוקשבת”.</p>
+</section>
+<section id="math-rulez" class="level2">
+<h2 class="anchored" data-anchor-id="math-rulez">Math Rulez!</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>math5pts <span class="ot">&lt;-</span> clean_mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(index_name <span class="sc">==</span> <span class="st">"זכאות 5 יחידות מתמטיקה"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(math5pts, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> value, <span class="at">color =</span> item)) <span class="sc">+</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>category) <span class="sc">+</span> </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"זכאות 5 יחידות לבגרות - השוואה"</span>) <span class="sc">+</span> </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"שנה"</span>) <span class="sc">+</span> </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"אחוז [%]"</span>) <span class="sc">+</span> </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="s01e05_social_mobility_files/figure-html/math5pts-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+<section id="housing-density" class="level2">
+<h2 class="anchored" data-anchor-id="housing-density">Housing density</h2>
+<p>What is better? a higher or lower density?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>density_housing <span class="ot">&lt;-</span> clean_mobi <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(index_name <span class="sc">==</span> <span class="st">"צפיפות דיור"</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>density_housing</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 104 × 7
+      id index_name   year dt_type         category item  value
+   &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;    &lt;chr&gt; &lt;dbl&gt;
+ 1  4347 צפיפות דיור  2000 מספר נפשות לחדר ארצי     ארצי  0.982
+ 2  4347 צפיפות דיור  2000 מספר נפשות לחדר מגדר     גברים 0.902
+ 3  4347 צפיפות דיור  2000 מספר נפשות לחדר מגדר     נשים  1.47 
+ 4  4347 צפיפות דיור  2001 מספר נפשות לחדר ארצי     ארצי  0.965
+ 5  4347 צפיפות דיור  2001 מספר נפשות לחדר מגדר     גברים 0.888
+ 6  4347 צפיפות דיור  2001 מספר נפשות לחדר מגדר     נשים  1.49 
+ 7  4347 צפיפות דיור  2002 מספר נפשות לחדר ארצי     ארצי  0.958
+ 8  4347 צפיפות דיור  2002 מספר נפשות לחדר מגדר     גברים 0.882
+ 9  4347 צפיפות דיור  2002 מספר נפשות לחדר מגדר     נשים  1.46 
+10  4347 צפיפות דיור  2003 מספר נפשות לחדר ארצי     ארצי  0.948
+# … with 94 more rows</code></pre>
+</div>
+</div>
+<section id="comparing-housing-density-by-degree-of-religiousness" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-housing-density-by-degree-of-religiousness">Comparing housing density by degree of religiousness</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>density_housing <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(category, <span class="st">"מידת דתיות"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2019</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(item <span class="sc">!=</span> <span class="st">"מעורב"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">item =</span> <span class="fu">factor</span>(item,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">c</span>(<span class="st">"חילוני"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"מסורתי"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"דתי"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"דתי מאוד"</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"חרדי"</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> item, <span class="at">y =</span> value)) <span class="sc">+</span> </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>category) <span class="sc">+</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"מספר נפשות לחדר"</span>) <span class="sc">+</span> </span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"מידת דתיות"</span>) <span class="sc">+</span> </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"ממוצע נפשות לחדר"</span>) <span class="sc">+</span> </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"{round(value, 2)}"</span>))) <span class="sc">+</span> </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="s01e05_social_mobility_files/figure-html/religiousness-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>Note to self</strong>: really missing from the data, the sample size that each measure is based on. Without having the sample size we can’t understand if the trend we are noticing is actually significant or just a side-effect of a small sample.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="op">+</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
