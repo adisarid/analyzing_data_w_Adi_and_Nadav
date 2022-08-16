@@ -1,0 +1,92 @@
+---
+title: "Studying Distributions"
+author: "Adi and Nadav"
+format: html
+editor: visual
+---
+
+## Palmer Penguins
+
+The data comes from the `palmerpenguins` package.
+
+```{r load packages}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+```{r the summary function}
+summary(penguins$body_mass_g)
+summary(penguins)
+
+penguins %>% 
+  na.omit() %>% 
+  summarize_if(is.numeric, 
+               list(avg = mean, 
+                    sd = sd,
+                    min = min))
+```
+
+## Quantiles
+
+```{r quantile}
+penguin_quantiles <- quantile(penguins$body_mass_g, seq(0, 1, 0.1), na.rm = T)
+penguin_quantiles
+```
+
+## Histogram
+
+```{r plotting a histogram}
+ggplot(penguins, aes(x = body_mass_g)) + 
+  geom_histogram(bins = 30) +
+  facet_wrap(~sex)
+```
+
+## Violin and Box-plots
+
+```{r plotting boxplots}
+penguins %>% 
+  filter(!is.na(sex)) %>% 
+  ggplot(aes(y = body_mass_g, x = species, fill = species)) + 
+  geom_violin() +
+  facet_wrap(~sex)
+
+penguins %>% 
+  filter(!is.na(sex)) %>% 
+  ggplot(aes(y = body_mass_g, x = species, fill = species)) + 
+  geom_boxplot() +
+  facet_wrap(~sex)
+```
+
+## Density plot
+
+```{r plotting density}
+penguins %>% 
+  filter(!is.na(sex)) %>% 
+  ggplot(aes(x = body_mass_g, color = sex)) + 
+  geom_density() +
+  facet_wrap(~species)
+```
+
+## Plotting ECDFs (Empirical cumulative distribution functions)
+
+```{r ecdf}
+penguins %>% 
+  filter(!is.na(sex)) %>% 
+  ggplot(aes(x = body_mass_g, color = species)) + 
+  stat_ecdf()
+```
+
+## Scatter plot
+
+```{r scatter plots}
+# This is a misleading "story"
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) + 
+  geom_point()
+
+# And this gives us a much more insightful chart
+penguins %>% 
+  ggplot(aes(x = bill_length_mm, y = bill_depth_mm, color = species)) + 
+  geom_point() + 
+  stat_smooth(method = "lm")
+```
