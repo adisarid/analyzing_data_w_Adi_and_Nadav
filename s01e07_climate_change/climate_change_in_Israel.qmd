@@ -1,0 +1,164 @@
+---
+title: "Examining Temprature Trends"
+author: "Adi and Nadav"
+format: html
+editor: visual
+---
+
+## Background
+
+We're going to figure out if climate change is something we can identify.
+
+```{r reading data}
+library(tidyverse)
+daily <- read_csv("data/new_isr_daily_data_web.csv")
+glimpse(daily)
+
+stations <- read_delim("data/new_stn_table_web.csv", delim = "|")
+glimpse(stations)
+```
+
+## Selecting stations
+
+We want to figure out if there's a specific stations which dates back to 1978 and till this day. It would be the easiest thing to work with.
+
+```{r stations}
+
+total_recorded_days_actual <- daily %>% 
+  filter(!is.na(tmp_air_max)) %>% 
+  count(stn_num, sort = T)
+  
+
+station_range <- stations %>% 
+  select(stn_num, stn_name, date_open, date_close) %>% 
+  mutate(date_close = coalesce(date_close, Sys.Date())) %>% 
+  mutate(total_duration =  date_close - date_open) %>% 
+  left_join(total_recorded_days_actual)
+  
+```
+
+We've seen that Jerusalem center is probably a good station to work with, but it has two stations. Lets examine the difference in the overlapping times.
+
+## Looking at Jerusalem center
+
+```{r tzfat}
+jerusalem <- daily %>% 
+  filter(stn_num %in% c(6770, 6771)) %>% 
+  filter(!is.na(tmp_air_max))
+
+station_compare <- jerusalem %>% 
+  select(stn_num, tmp_air_max, time_obs) %>% 
+  pivot_wider(id_cols = time_obs, names_from = stn_num, values_from = tmp_air_max) %>% 
+  filter(!is.na(`6770`) & !is.na(`6771`)) %>% 
+  mutate(temp_diff = `6771` - `6770`)
+
+ggplot(station_compare, aes(temp_diff)) + 
+  geom_density()
+```
+
+```{r jerusalem fixed}
+jerusalem_complete <- jerusalem %>% 
+  select(stn_num, tmp_air_max, time_obs) %>% 
+  pivot_wider(id_cols = time_obs, names_from = stn_num, values_from = tmp_air_max) %>% 
+  mutate(air_max_temp = coalesce(`6771`, `6770`))
+```
+
+Let's try to plot the time series.
+
+```{r jerusalem time series}
+jerusalem_complete %>% 
+  filter(time_obs >= "2015-01-01") %>% 
+  ggplot(aes(x = time_obs, y = air_max_temp)) + 
+  geom_line()
+```
+
+## Getting into time series analysis
+
+```{r forecasting with time series}
+library(fable)
+library(tsibble)
+
+jerusalem_monthly <- jerusalem_complete %>% 
+  mutate(month = lubridate::floor_date(time_obs, unit = "month")) %>% 
+  group_by(month) %>% 
+  summarize(mean_max_temp = mean(air_max_temp, na.rm = T),
+            sample_size = sum(!is.na(air_max_temp))) %>%
+  mutate(month = yearmonth(month)) %>% 
+  select(month, mean_max_temp) %>% 
+  tsibble::as_tsibble()
+
+ggplot(jerusalem_monthly, aes(x = month, y = mean_max_temp)) + 
+  geom_line()
+
+# Also works because we're using tsibble:
+# autoplot(jerusalem_monthly)
+  
+
+fable_prediction <- jerusalem_monthly %>% 
+  model(
+    ets = ETS(mean_max_temp),
+    snaive = SNAIVE(mean_max_temp)
+  )
+
+fable_prediction %>% 
+  forecast(h = "2 years") %>% 
+  autoplot(filter(jerusalem_monthly, lubridate::year(month) > 2015), level = NULL)
+```
+
+## Examining the model summary
+
+```{r summary of the model}
+fable_prediction$ets[[1]]
+```
+
+## Examining the max temp
+
+```{r by max}
+jerusalem_monthly_max <- jerusalem_complete %>% 
+  mutate(month = lubridate::floor_date(time_obs, unit = "month")) %>% 
+  group_by(month) %>% 
+  summarize(max_max_temp = max(air_max_temp, na.rm = T)) %>%
+  mutate(month = yearmonth(month)) %>% 
+  select(month, max_max_temp) %>% 
+  tsibble::as_tsibble()
+
+ggplot(jerusalem_monthly_max, aes(x = month, y = max_max_temp)) + 
+  geom_line()
+
+# Also works because we're using tsibble:
+# autoplot(jerusalem_monthly)
+  
+
+fable_prediction_max <- jerusalem_monthly_max %>% 
+  model(
+    ets = ETS(max_max_temp)
+  )
+
+fable_prediction_max$ets[[1]]
+```
+
+## Plotting moving average
+
+```{r looking at moving average}
+moving_average_model <- jerusalem_monthly %>% 
+  model(Avg = MEAN(mean_max_temp~window(size = 24))) %>% 
+  augment()
+
+moving_average_model %>% 
+  slice(24:870) %>% 
+  ggplot(aes(x = month, y = .fitted)) + 
+  geom_line()
+```
+
+## August per year
+
+```{r looking at august}
+jerusalem_monthly %>% 
+  as_tibble() %>% 
+  mutate(actual_month = lubridate::month(month),
+         actual_year = lubridate::year(month)) %>% 
+  filter(actual_month == 8) %>% 
+  ggplot(aes(x = actual_year, y = mean_max_temp)) + 
+  geom_line() + 
+  geom_smooth(method = "loess")
+```
