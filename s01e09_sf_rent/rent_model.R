@@ -84,12 +84,18 @@ rent_lm_workflow <- workflow() %>%
 rent_lm_fit <- rent_lm_workflow %>% 
   fit(rent_train)
 
-rent_lm_predict <- collect_predictions(rent_lm_fit, 
-                                       new_data = rent_cv)
-
 # Getting a glimpse of the original underlaying model
-# extract_fit_engine(rent_lm_fit) %>% summary()
+extract_fit_engine(rent_lm_fit) %>% summary()
 
-# Extract accuracy measures
-rent_lm_predict %>% 
-  collect_metrics()
+# Resample controls -------------------------------------------------------
+
+ctrl <- control_resamples(save_pred = TRUE)
+
+# Conduct resamples -------------------------------------------------------
+
+resamples_lm <- rent_lm %>% 
+  tune_grid(rent_recipe, resamples = rent_cv, control = ctrl)
+
+rent_lm_predict <- collect_predictions(resamples_lm)
+
+collect_metrics(resamples_lm)
