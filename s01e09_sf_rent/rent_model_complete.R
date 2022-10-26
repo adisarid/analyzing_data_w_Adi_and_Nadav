@@ -21,7 +21,7 @@ rent %>%
   filter(year %in% c(2004, 2012, 2016)) %>% 
   ggplot(aes(price)) + 
   geom_histogram() + 
-  scale_x_log10() + 
+  # scale_x_log10() + 
   facet_wrap(~year)
 
 
@@ -67,7 +67,7 @@ rent_recipe <- recipe(logprice ~ year + beds + baths + sqft + county,
   step_impute_mean(all_numeric_predictors()) %>% 
   step_naomit(county) %>% 
   step_other(county) %>% 
-  step_dummy(county) # change here from the original version
+  step_dummy(county)
 
 # Double check if recipe is ok --------------------------------------------
 
@@ -110,7 +110,10 @@ collect_metrics(resamples_lm)
 resamples_trees <- rent_trees %>% 
   tune_grid(rent_recipe, resamples = rent_cv, control = ctrl)
 
-rent_trees_predict <- collect_predictions(resamples_trees)
+# Did it in advanced:
+resamples_trees <- readRDS("saved objects/resamples_trees.RDS")
+
+# rent_trees_predict <- collect_predictions(resamples_trees)
 
 tree_metrics <- collect_metrics(resamples_trees)
 
@@ -118,6 +121,9 @@ tree_metrics <- collect_metrics(resamples_trees)
 
 resamples_boosting <- rent_boost %>% 
   tune_grid(rent_recipe, resamples = rent_cv, control = ctrl)
+
+# Did it in advanced:
+resamples_boosting <- readRDS("saved objects/resamples_boosting.RDS")
 
 boost_metrics <- collect_metrics(resamples_boosting)
 
@@ -142,6 +148,28 @@ boost_metrics %>%
 
 # exporting objects for later use -----------------------------------------
 
-saveRDS(resamples_trees, file = "saved objects/resamples_trees.RDS")
+# saveRDS(resamples_trees, file = "saved objects/resamples_trees.RDS")
+# saveRDS(resamples_boosting, file = "saved objects/resamples_boosting.RDS")
 
-saveRDS(resamples_boosting, file = "saved objects/resamples_boosting.RDS")
+
+
+
+
+
+
+
+
+
+# Fit the best model ------------------------------------------------------
+# replace 999 with best values
+rent_boost <- boost_tree(mode = "regression", 
+                         engine = "xgboost",
+                         trees = 999,
+                         learn_rate = 999)
+
+boost_model_fit <- workflow() %>% 
+  add_model(rent_boost) %>% 
+  add_recipe(rent_recipe) %>% 
+  fit(rent_train)
+
+best_model_prediction <- predict(boost_model_fit, newdata = rent_test)
