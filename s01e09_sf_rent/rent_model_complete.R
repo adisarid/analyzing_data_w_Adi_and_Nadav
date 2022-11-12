@@ -21,9 +21,8 @@ rent %>%
   filter(year %in% c(2004, 2012, 2016)) %>% 
   ggplot(aes(price)) + 
   geom_histogram() + 
-  # scale_x_log10() + 
+  scale_x_log10() + 
   facet_wrap(~year)
-
 
 # Building a new model to predict the rent --------------------------------
 
@@ -55,7 +54,7 @@ rent_lm <- linear_reg(mode = "regression", engine = "lm")
 # Create a search grid ----------------------------------------------------
 
 rent_trees_grid <- grid_latin_hypercube(tree_depth(),
-                                        cost_complexity())
+                                        cost_complexity(), size = 5)
 
 rent_boost_grid <- grid_latin_hypercube(trees(),
                                         learn_rate())
@@ -65,8 +64,8 @@ rent_boost_grid <- grid_latin_hypercube(trees(),
 rent_recipe <- recipe(logprice ~ year + beds + baths + sqft + county, 
                       data = rent_train) %>% 
   step_impute_mean(all_numeric_predictors()) %>% 
-  step_naomit(county) %>% 
-  step_other(county) %>% 
+  step_other(county) %>%
+  step_naomit(county) %>%
   step_dummy(county)
 
 # Double check if recipe is ok --------------------------------------------
@@ -108,7 +107,8 @@ collect_metrics(resamples_lm)
 # > Generate tree workflow ----
 
 resamples_trees <- rent_trees %>% 
-  tune_grid(rent_recipe, resamples = rent_cv, control = ctrl)
+  tune_grid(rent_recipe, resamples = rent_cv, control = ctrl, 
+            grid = rent_trees_grid)
 
 # Did it in advanced:
 resamples_trees <- readRDS("saved objects/resamples_trees.RDS")
@@ -120,7 +120,7 @@ tree_metrics <- collect_metrics(resamples_trees)
 # > Generate boosting workflow ----
 
 resamples_boosting <- rent_boost %>% 
-  tune_grid(rent_recipe, resamples = rent_cv, control = ctrl)
+  tune_grid(rent_recipe, resamples = rent_cv, control = ctrl, grid = rent_boost_grid)
 
 # Did it in advanced:
 resamples_boosting <- readRDS("saved objects/resamples_boosting.RDS")
@@ -164,11 +164,21 @@ boost_metrics %>%
 # replace 999 with best values
 rent_boost <- boost_tree(mode = "regression", 
                          engine = "xgboost",
-                         trees = 999,
-                         learn_rate = 999)
+                         trees = 1239,
+                         learn_rate = 0.0655)
 
 boost_model_fit <- workflow() %>% 
   add_model(rent_boost) %>% 
+  add_recipe(rent_recipe) %>% 
+  fit(rent_train)
+
+rent_tree <- decision_tree(tree_depth = 13,
+                           cost_complexity = 7.8e-7) %>% 
+  set_engine("rpart") %>% 
+  set_mode("regression")
+
+tree_model_fit <- workflow() %>% 
+  add_model(rent_tree) %>% 
   add_recipe(rent_recipe) %>% 
   fit(rent_train)
 
