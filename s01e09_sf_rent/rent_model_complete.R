@@ -150,36 +150,3 @@ boost_metrics %>%
 
 # saveRDS(resamples_trees, file = "saved objects/resamples_trees.RDS")
 # saveRDS(resamples_boosting, file = "saved objects/resamples_boosting.RDS")
-
-
-
-
-
-
-
-
-
-
-# Fit the best model ------------------------------------------------------
-# replace 999 with best values
-rent_boost <- boost_tree(mode = "regression", 
-                         engine = "xgboost",
-                         trees = 1239,
-                         learn_rate = 0.0655)
-
-boost_model_fit <- workflow() %>% 
-  add_model(rent_boost) %>% 
-  add_recipe(rent_recipe) %>% 
-  fit(rent_train)
-
-rent_tree <- decision_tree(tree_depth = 13,
-                           cost_complexity = 7.8e-7) %>% 
-  set_engine("rpart") %>% 
-  set_mode("regression")
-
-tree_model_fit <- workflow() %>% 
-  add_model(rent_tree) %>% 
-  add_recipe(rent_recipe) %>% 
-  fit(rent_train)
-
-best_model_prediction <- predict(boost_model_fit, newdata = rent_test)
