@@ -162,3 +162,18 @@ unified_funds_yield_all %>%
   mutate(movement = rank_upto17 - rank_from17) %>% 
   summarize(mean(movement),
             median(movement))
+
+# Visualization of yield --------------------------------------------------
+
+chart_upto17 <- all_funds_yield %>% 
+  filter(FUND_NAME %in% unified_funds_yield$FUND_NAME) %>% 
+  filter(date <= "2017-01-01") %>% 
+  ggplot(aes(x = date, y = cumulative_value, color = FUND_NAME)) + 
+  geom_line(size = 0.8)
+
+chart_from17 <- all_funds_yield_from2017 %>% 
+  filter(FUND_NAME %in% unified_funds_yield$FUND_NAME) %>% 
+  ggplot(aes(x = date, y = cumulative_value, color = FUND_NAME)) + 
+  geom_line(size = 0.8)
+ 
+chart_upto17 + chart_from17
