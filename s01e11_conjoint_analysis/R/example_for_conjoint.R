@@ -1,6 +1,6 @@
 library(tidyverse)
 
-smartwatch <- read_csv("https://reporting.alchemer.com/reportsview/?key=471756-13847170-687fdff0b5d483c1a744b9860f2e1002") %>%
+smartwatch <- read_csv("data/smartwatch_conjoint_raw.csv") %>%
   set_names(c("response_id",
               "set_number",
               "card_number",
@@ -11,7 +11,7 @@ smartwatch <- read_csv("https://reporting.alchemer.com/reportsview/?key=471756-1
               "choice")) %>% 
   mutate(choice = choice/100)
 
-demographic_data <- read_csv("https://reporting.alchemer.com/reportsview/?key=471756-13847202-0a2a33bdad9c7a20b9fcb24ad75dc242") %>% 
+demographic_data <- read_csv("data/demographics.csv") %>% 
   set_names(c("response_id",
               "age",
               "gender",
@@ -60,3 +60,6 @@ new_predictions <- tibble(
 predict(smartwatch_model, 
         newdata = new_predictions, 
         type = "response")
+
+# Odds ratio comparison
+(0.3518971/(1-0.3518971))/(0.3483264/(1-0.3483264))
