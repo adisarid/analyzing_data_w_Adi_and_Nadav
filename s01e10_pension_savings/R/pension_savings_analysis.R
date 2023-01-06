@@ -8,7 +8,7 @@ gemel2018 <- read_csv("data/gemel_2018.csv", skip = 1, guess_max = 10) %>%
   select(-1)
   
 # Now reading all the rest and adding the 2018 file
-all_gemel_data_raw <- map_df(dir("data")[-3], 
+all_gemel_data_raw <- map_df(dir("data")[c(-3, -4)], 
                          ~{
                            read_csv(paste0("data/", .x), 
                                     col_types = cols(), 
