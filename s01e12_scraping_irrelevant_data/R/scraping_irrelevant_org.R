@@ -69,3 +69,26 @@ scraping_results <- map(1:5954,
                         .progress = TRUE)
 
 saveRDS(scraping_results, "data/scraping_results.RDS")
+
+
+# Extract results to a csv file -------------------------------------------
+
+extracted_data <- map_df(1:5954,
+                         ~{
+                           current_res <- scraping_results[[.x]]
+                           if (is.null(current_res$error)){
+                             tibble(article = .x,
+                                    title = current_res$result$title,
+                                    explaining_text = current_res$result$explaining_text,
+                                    original_text = current_res$result$original_text)
+                           } else {
+                             tibble(article = .x,
+                                    title = NA,
+                                    explaining_text = NA,
+                                    original_text = NA)
+                           }
+                         },
+                         .progress = TRUE)
+extracted_data %>% 
+  filter(!is.na(title)) %>% 
+  write_csv("data/extracted_irrelevant_data.csv")
