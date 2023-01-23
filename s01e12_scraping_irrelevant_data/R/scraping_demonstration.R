@@ -12,6 +12,10 @@ extract_page <- function(post_number) {
     html_elements(".entry-title") %>% 
     html_text2()
   
+  entry_date <- page %>% 
+    html_elements(".post-meta") %>% 
+    html_text()
+  
   original_text <- page %>% 
     html_elements(".entry") %>% 
     html_text()
@@ -24,7 +28,8 @@ extract_page <- function(post_number) {
   tibble(post_number = post_number,
          entry_title = entry_title,
          explain_text = explain_text,
-         source_text = source_text)
+         source_text = source_text,
+         entry_date = entry_date)
 }
 
 results <- extract_page(99)
@@ -34,26 +39,28 @@ safe_extraction <- safely(extract_page,
 
 possible_extraction <- possibly(extract_page)
 
-for (post_num in c(300, 3562, 100)){
-  
-  post_content <- safe_extraction(post_num)
-  
-  if (is.null(post_content$error)){
-    results <- bind_rows(results,
-                         post_content$result)
-  }
-}
+# for (post_num in c(300, 3562, 100)){
+#   
+#   post_content <- safe_extraction(post_num)
+#   
+#   if (is.null(post_content$error)){
+#     results <- bind_rows(results,
+#                          post_content$result)
+#   }
+# }
 
-extracted_data <- map(c(90:100, 300),
+extracted_data <- map(1:5954,
                       possible_extraction, 
                       .progress = TRUE)
+
 extracted_tibble <- extracted_data %>% 
   list_rbind() %>% 
   mutate(recommendation = case_when(
     str_detect(entry_title, "לא להעביר") ~ "avoid",
     str_detect(entry_title, "לכאן ולכאן") ~ "neutral",
+    str_detect(entry_title, "ללא המלצה") ~ "neutral",
     str_detect(entry_title, "תרמית") ~ "fraud",
-    T ~ "true"))
+    str_detect(entry_title, "אפשר להעביר") ~ "true"))
 
 write_csv(extracted_tibble, "data/example_extracted_tibble.csv")
 
