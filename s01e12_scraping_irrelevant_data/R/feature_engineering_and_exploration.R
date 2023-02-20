@@ -21,8 +21,10 @@ library(tidymodels)
 set.seed(544)
 
 irr_split <- initial_split(irr, prop = 0.8)
-irr_train <- training(irr_split)
-irr_test <- testing(irr_split)
+irr_train <- training(irr_split) %>% 
+  mutate(avoid = factor((recommendation == "avoid")))
+irr_test <- testing(irr_split) %>% 
+  mutate(avoid = factor(recommendation == "avoid"))
 
 
 # Analysis on the training dataset ----------------------------------------
@@ -99,12 +101,18 @@ irr_word_counts <- irr_text_analysis %>%
   mutate(prop = n/sum(n))
 
 visualize_word_separation <- function(word_for_check){
-  irr_train %>% 
-    mutate(is_word_appear = str_detect(original_text, word_for_check)) %>% 
+  
+  word_table <- irr_train %>% 
+    mutate(is_word_appear = str_detect(original_text, word_for_check))
+  
+  word_sample <- sum(word_table$is_word_appear)
+  
+  word_table %>% 
     group_by(is_word_appear) %>% 
     count(recommendation) %>% 
     ggplot(aes(x = is_word_appear, y = n, fill = recommendation)) + 
-    geom_col(position = "fill")
+    geom_col(position = "fill") + 
+    labs(caption = glue::glue("The word {word_for_check} appears in {word_sample} observations."))
 }
 
 visualize_word_separation("מספר")
@@ -113,6 +121,7 @@ visualize_word_separation("מספר")
 
 visualize_word_separation("הודעה")
 visualize_word_separation("אנשים")
+visualize_word_separation("וירוס")
 
 report_word_separation <- function(word_for_check){
   irr_train %>% 
@@ -154,3 +163,80 @@ visualize_word_separation('לו')
 # Insight #4: It seems that words that we expected to not influence the recommendation are influential
 #             Specifically Hebrew stop words - TODO: VERIFY later on.
 #             If this is indeed accurate, should use these words in the model training.
+
+
+
+# Using regular expression to detect phone numbers ------------------------
+
+irr_train %>% 
+  mutate(is_number_present = str_detect(original_text, "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$")) %>% 
+  count(is_number_present)
+
+# Insight #5: seems the regex didn't find any phone numbers. After viewing a few texts - the author might be deleting the phone numbers
+
+# Finalizing features -----------------------------------------------------
+
+# We will use the following features: msg length, and the words: מספר, וירוס, לא, לו, ש"ח, שקלים, to, and
+
+irr_train_processed <- irr_train %>% 
+  mutate(is_mispar = str_detect(original_text, "מספר"),
+         is_virus = str_detect(original_text, "וירוס|קורונה"),
+         is_not = str_detect(original_text, "לא"),
+         is_forhim = str_detect(original_text, "לו"),
+         is_currency = str_detect(original_text, 'ש"ח|שקלים'),
+         is_eng = str_detect(original_text, "to|and")) %>% 
+  mutate(msg_length = str_length(original_text)) %>% 
+  select(starts_with("is_"), msg_length, avoid)
+
+# Build a cross validation basis
+irr_cv <- vfold_cv(irr_train_processed, v = 10)
+
+# Build the recipe based on the aforementioned insights
+
+irr_recipe <- recipe(avoid ~ ., data = irr_train_processed) %>% 
+  step_log(msg_length)
+  
+# Test recipe
+irr_recipe %>% 
+  prep() %>% 
+  bake(new_data = irr_train_processed)
+
+# Create a logistic regression model
+irr_glm <- logistic_reg(engine = "glm")
+
+# Generate workflow (for logistic regression)
+
+irr_logistic_regression_wflow <- workflow() %>% 
+  add_model(irr_glm) %>% 
+  add_recipe(irr_recipe)
+
+# Fit the actual model
+
+irr_glm_fit <- irr_logistic_regression_wflow %>% 
+  fit(irr_train_processed)
+
+glm_res <- extract_fit_engine(irr_glm_fit)
+glm_res %>% summary()
+
+# Resampling definitions
+
+ctrl <- control_resamples(save_pred = T)
+
+# Conduct resampling
+
+resamples_glm <- irr_glm %>% 
+  tune_grid(irr_recipe, resamples = irr_cv, control = ctrl)
+
+collect_metrics(resamples_glm)
+collect_predictions(resamples_glm)
+
+irr_train_processed %>% 
+  mutate(fitted = glm_res$fitted.values) %>% 
+  roc_curve(fitted, truth = avoid, event_level = "second") %>% 
+  ggplot(aes(x = 1-specificity, y = sensitivity)) + 
+  geom_line() + 
+  geom_abline(slope = 1, intercept = 0)
+
+# CONTINUE FROM HERE:
+
+# TODO: Try another model, then compare the results of the two and move to show the results on the train set.
