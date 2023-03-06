@@ -186,7 +186,9 @@ irr_train_processed <- irr_train %>%
          is_currency = str_detect(original_text, 'ש"ח|שקלים'),
          is_eng = str_detect(original_text, "to|and")) %>% 
   mutate(msg_length = str_length(original_text)) %>% 
-  select(starts_with("is_"), msg_length, avoid)
+  select(starts_with("is_"), msg_length, avoid) %>% 
+  mutate(across(starts_with("is_"),
+                ~{.*1}))
 
 # Build a cross validation basis
 irr_cv <- vfold_cv(irr_train_processed, v = 10)
@@ -237,6 +239,90 @@ irr_train_processed %>%
   geom_line() + 
   geom_abline(slope = 1, intercept = 0)
 
-# CONTINUE FROM HERE:
 
-# TODO: Try another model, then compare the results of the two and move to show the results on the train set.
+# Boosting model ----------------------------------------------------------
+
+# Create a logistic regression model
+irr_boost <- boost_tree(mode = "classification",
+                        engine = "xgboost")
+
+# Generate workflow (for logistic regression)
+
+irr_boost_regression_wflow <- workflow() %>% 
+  add_model(irr_boost) %>% 
+  add_recipe(irr_recipe)
+
+# Fit the actual model
+
+irr_boost_fit <- irr_boost_regression_wflow %>% 
+  fit(irr_train_processed)
+
+# Conduct resampling
+
+resamples_boost <- irr_boost %>% 
+  tune_grid(irr_recipe, resamples = irr_cv, control = ctrl)
+
+boost_res <- extract_fit_engine(irr_boost_fit)
+
+boost_predictions <- predict(boost_res, newdata = irr_recipe %>% 
+          prep() %>% 
+          bake(new_data = irr_train_processed) %>% 
+          select(-avoid) %>% 
+          as.matrix())
+
+# Create a combined ROC ---------------------------------------------------
+
+glm_roc <- irr_train_processed %>% 
+  mutate(fitted = glm_res$fitted.values) %>% 
+  roc_curve(fitted, truth = avoid, event_level = "second") %>% 
+  mutate(model = "Logistic regression (train)")
+
+boost_roc <- irr_train_processed %>% 
+  mutate(fitted = boost_predictions) %>% 
+  roc_curve(fitted, truth = avoid) %>% 
+  mutate(model = "Boosting (train)")
+
+glm_roc %>% 
+  bind_rows(boost_roc) %>% 
+  ggplot(aes(x = 1-specificity, y = sensitivity, color = model)) + 
+  geom_line() + 
+  geom_abline(slope = 1, intercept = 0)
+
+
+# Examining the test set ROC ----------------------------------------------
+
+irr_test_processed <- irr_test %>% 
+  mutate(is_mispar = str_detect(original_text, "מספר"),
+         is_virus = str_detect(original_text, "וירוס|קורונה"),
+         is_not = str_detect(original_text, "לא"),
+         is_forhim = str_detect(original_text, "לו"),
+         is_currency = str_detect(original_text, 'ש"ח|שקלים'),
+         is_eng = str_detect(original_text, "to|and")) %>% 
+  mutate(msg_length = str_length(original_text)) %>% 
+  select(starts_with("is_"), msg_length, avoid) %>% 
+  mutate(across(starts_with("is_"),
+                ~{.*1}))
+
+glm_test_pred <- predict(glm_res, newdata = irr_test_processed, type = "response")
+boost_test_pred <- predict(boost_res, 
+                           newdata = irr_test_processed %>% 
+                             select(-avoid) %>% 
+                             as.matrix())
+
+glm_test_roc <- irr_test_processed %>% 
+  mutate(fitted = glm_test_pred) %>% 
+  roc_curve(fitted, truth = avoid, event_level = "second") %>% 
+  mutate(model = "Logistic regression (test)")
+
+boost_test_roc <- irr_test_processed %>% 
+  mutate(fitted = boost_test_pred) %>% 
+  roc_curve(fitted, truth = avoid) %>% 
+  mutate(model = "Boosting (test)")
+
+glm_roc %>% 
+  bind_rows(boost_roc,
+            glm_test_roc,
+            boost_test_roc) %>% 
+  ggplot(aes(x = 1-specificity, y = sensitivity, color = model)) + 
+  geom_line() + 
+  geom_abline(slope = 1, intercept = 0)
