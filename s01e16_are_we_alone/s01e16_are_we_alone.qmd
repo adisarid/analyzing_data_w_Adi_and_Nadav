@@ -1,0 +1,126 @@
+---
+title: "Are we alone?"
+toc: true
+author: "Adi and Nadav!"
+date: "2023-07-04"
+---
+
+## Background
+
+Today we're going to analyze UFO sightings data.
+
+The data comes from tidytuesday (2023-06-20), and let's load it.
+
+```{r load data}
+#| warning: false
+#| message: false
+library(tidyverse)
+ufo_sightings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-06-20/ufo_sightings.csv')
+places <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-06-20/places.csv')
+day_parts_map <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-06-20/day_parts_map.csv')
+```
+
+## Are there any mass sightings?
+
+```{r mass sightings}
+ufo_sightings %>% 
+  mutate(reporting_day = round_date(reported_date_time, unit = "day")) %>% 
+  count(reporting_day) %>% 
+  ggplot(aes(n)) + 
+  geom_density() +
+  scale_x_log10() + 
+  ggtitle("Density of number of sightings - log scale")
+
+ufo_sightings %>% 
+  mutate(reporting_day = round_date(reported_date_time, unit = "day")) %>% 
+  count(reporting_day, city) %>% 
+  filter(n > 5) %>% 
+  ggplot(aes(n)) + 
+  geom_density() +
+  ggtitle("Density of number of sightings per city (n > 5)")
+```
+
+### Identification of some sightings
+
+```{r mass sightings details}
+min_sigtings <- 5
+
+mass_sight_raw <- ufo_sightings %>% 
+  mutate(reporting_day = as_date(round_date(reported_date_time, unit = "day"))) 
+
+mass_sight_shapes <- mass_sight_raw %>% 
+  distinct(reporting_day, city, shape) %>% 
+  filter(!is.na(shape)) %>% 
+  group_by(reporting_day, city) %>% 
+  summarize(observed_shapes = paste0(shape, collapse = ", "))
+
+duration_distribution <- mass_sight_raw %>% 
+  add_count(reporting_day, city) %>% 
+  filter(n > min_sigtings) %>% 
+  select(-n) %>% 
+  group_by(reporting_day, city) %>% 
+  summarize(duration_dist = list(duration_seconds)) %>% 
+  left_join(mass_sight_shapes)
+
+
+data <- mass_sight_raw %>% 
+  count(reporting_day, city, sort = T) %>% 
+  left_join(duration_distribution) %>% 
+  filter(n > min_sigtings)
+
+data %>% 
+  select(-duration_dist) %>% 
+  mutate(duration_boxplot = NA) %>% 
+  mutate(duration_logbox = NA) %>% 
+  reactable::reactable(
+    filterable = TRUE, 
+    columns = list(
+      duration_boxplot = reactable::colDef(
+        cell = function(value, index) {
+          sparkline::sparkline(data$duration_dist[[index]], 
+                               type = "box")
+          }
+        ),
+      duration_logbox = reactable::colDef(
+        cell = function(value, index) {
+          sparkline::sparkline(log1p(data$duration_dist[[index]]), 
+                               type = "box")
+          }
+        )
+      ))
+```
+
+## Mapping density of sightings
+
+```{r num of sightings per state}
+
+state_codes <- read_csv("data/country_codes_us.csv", 
+                        col_names = c("state", "region")) %>% 
+  mutate(region = str_to_lower(region))
+
+ufo_per_state <- ufo_sightings %>%
+  filter(country_code == "US") %>% 
+  count(state) %>% 
+  left_join(state_codes) %>% 
+  rename(state_code = state,
+         state = region)
+
+map <- map_data("state")
+
+state_center_mass <- map %>% 
+  group_by(region) %>% 
+  summarize(long = mean(long),
+            lat = mean(lat)) %>% 
+  left_join(state_codes)
+
+ggplot(ufo_per_state, aes(fill = n)) + 
+  geom_map(aes(map_id = state), map = map) + 
+  expand_limits(x = map$long, y = map$lat) + 
+  scale_fill_viridis_c() + 
+  geom_label(data = state_center_mass,
+            inherit.aes = FALSE,
+            aes(label = state, x = long, y = lat),
+            alpha = 0.5)
+
+
+```
