@@ -90,7 +90,7 @@ netflix_adi_chart_data %>%
   theme_minimal() + 
   xlab("") + 
   ylab("Hours") + 
-  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023* (Adi's profile)",
+  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023* in Adi's profile",
        subtitle = "PC and Smart TV declining in favor of Mobile",
        caption = "* The 2023 data was factored to accomodate for 12 months (actual data exists up to July 30th)") + 
   theme(legend.position = "none", 
@@ -99,14 +99,15 @@ netflix_adi_chart_data %>%
   geom_text(data = netflix_adi_chart_data %>% 
               filter(year == 2023) %>% 
               mutate(total_duration_hr = if_else(device_type == "Smart TV",
-                                                 total_duration_hr + 2.5,
+                                                 total_duration_hr + 0,
                                                  total_duration_hr)), 
                            aes(label = device_type), nudge_x = 0.15, hjust = 0) + 
-  coord_cartesian(xlim = c(2019, 2023.5)) + 
+  coord_cartesian(xlim = c(2019, 2023), clip = "off") + 
   scale_x_continuous(breaks = 2019:2023) + 
   scale_linewidth_manual(values = c("Mobile" = 1.25, "PC" = 0.5, "Smart TV" = 0.5)) + 
   scale_color_brewer(palette = "Set2") +
-  theme(plot.title = element_markdown())
+  theme(plot.title = element_markdown(),
+        plot.margin = unit(c(1, 4, 1, 1), "lines"))
 
 # Hourly patterns ---------------------------------------------------------
 
