@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggtext)
 
 netflix <- read_csv("Data/ViewingActivity.csv") %>% 
   janitor::clean_names()
@@ -64,6 +65,47 @@ netflix_adi %>%
   geom_line() + 
   geom_point()
 
+# With 2023 corrected for partial year
+netflix_adi_chart_data <- netflix_adi %>% 
+  mutate(year = year(floor_date(start_time, unit = "year"))) %>% 
+  filter(device_type != "Mobile",
+         !str_detect(device_type, "Tablet")) %>% 
+  mutate(device_type = if_else(str_detect(device_type, "Android"),
+                               "Android",
+                               device_type)) %>% 
+  group_by(year, device_type) %>% 
+  summarize(total_duration_hr = as.numeric(sum(duration))/(3600)) %>% 
+  mutate(total_duration_hr = if_else(year == 2023, 
+                                     total_duration_hr/7*12, total_duration_hr)) %>% 
+  mutate(device_type = case_when(device_type == "Android" ~ "Mobile",
+                                 device_type == "Chrome PC (Cadmium)" ~ "PC",
+                                 T ~ "Smart TV"))
+
+library(ggtext)
+
+netflix_adi_chart_data %>% 
+  ggplot(aes(x = year, y = total_duration_hr, color = device_type, linewidth = device_type)) + 
+  geom_line() + 
+  geom_point(size = 2.5) + 
+  theme_minimal() + 
+  xlab("") + 
+  ylab("Hours") + 
+  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023 (Adi's profile)",
+       subtitle = "PC and Smart TV making room for Mobile watching time") + 
+  theme(legend.position = "none", 
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank()) + 
+  geom_text(data = netflix_adi_chart_data %>% 
+              filter(year == 2023) %>% 
+              mutate(total_duration_hr = if_else(device_type == "Smart TV",
+                                                 total_duration_hr + 5,
+                                                 total_duration_hr)), 
+                           aes(label = device_type), nudge_x = 0.15, hjust = 0) + 
+  coord_cartesian(xlim = c(2019, 2023.5)) + 
+  scale_x_continuous(breaks = 2019:2023) + 
+  scale_linewidth_manual(values = c("Mobile" = 1.25, "PC" = 0.5, "Smart TV" = 0.5)) + 
+  scale_color_brewer(palette = "Set2") +
+  theme(plot.title = element_markdown())
 
 # Hourly patterns ---------------------------------------------------------
 
