@@ -90,15 +90,16 @@ netflix_adi_chart_data %>%
   theme_minimal() + 
   xlab("") + 
   ylab("Hours") + 
-  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023 (Adi's profile)",
-       subtitle = "PC and Smart TV making room for Mobile watching time") + 
+  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023* (Adi's profile)",
+       subtitle = "PC and Smart TV declining in favor of Mobile",
+       caption = "* The 2023 data was factored to accomodate for 12 months (actual data exists up to July 30th)") + 
   theme(legend.position = "none", 
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()) + 
   geom_text(data = netflix_adi_chart_data %>% 
               filter(year == 2023) %>% 
               mutate(total_duration_hr = if_else(device_type == "Smart TV",
-                                                 total_duration_hr + 5,
+                                                 total_duration_hr + 2.5,
                                                  total_duration_hr)), 
                            aes(label = device_type), nudge_x = 0.15, hjust = 0) + 
   coord_cartesian(xlim = c(2019, 2023.5)) + 
