@@ -111,7 +111,7 @@ netflix_adi_chart_data %>%
 
 # Hourly patterns ---------------------------------------------------------
 
-netflix_adi %>% 
+base_watch_distribution <- netflix_adi %>% 
   mutate(hour = hour(start_time)) %>% 
   mutate(viewtime_fct = case_when(between(hour, 7, 11) ~ "Morning",
                                   between(hour, 11, 16) ~ "Noon",
@@ -125,7 +125,34 @@ netflix_adi %>%
                                           "Evening",
                                           "Night"))) %>% 
   group_by(year, viewtime_fct) %>% 
-  summarize(total_duration_hr = as.numeric(sum(duration))/(3600)) %>% 
+  summarize(total_duration_hr = as.numeric(sum(duration))/(3600))
+
+label_watch_distribution <- base_watch_distribution %>% 
+  mutate(is_evening_night = viewtime_fct %in% c("Night", "Evening")) %>% 
+  group_by(year, is_evening_night) %>% 
+  summarize(total_duration_hr = sum(total_duration_hr)) %>% 
+  group_by(year) %>% 
+  mutate(prop = total_duration_hr/sum(total_duration_hr)) %>% 
+  filter(is_evening_night)
+
+base_watch_distribution %>% 
   ggplot(aes(x = year, y = total_duration_hr, fill = viewtime_fct)) + 
   geom_col(position = position_fill()) +
-  scale_fill_brewer(palette = "Reds")
+  scale_fill_brewer(palette = "Reds") + 
+  theme_minimal() + 
+  theme(panel.grid = element_blank(),
+        plot.title = element_markdown(),
+        legend.title = element_blank(),
+        legend.position = "right",
+        legend.justification = "right") + 
+  scale_y_continuous(labels = scales::percent) + 
+  ylab("") + 
+  xlab("") + 
+  guides(fill = guide_legend("Time")) + 
+  geom_col(data = label_watch_distribution, inherit.aes = FALSE,
+           aes(x = year, y = prop), color = "black", linewidth = 0.75, alpha = 0) + 
+  geom_label(data = label_watch_distribution, inherit.aes = FALSE,
+             aes(x = year, y = prop,
+                 label = glue::glue("{round(prop*100)}%"))) +
+  labs(title = "<span style = 'color:#db0000;'>Netflix</span> viewing distribution during the day (in Adi's profile)",
+       subtitle = "During 2023 late bingeing decreased significantly (from 45-59% to 27%)") 
