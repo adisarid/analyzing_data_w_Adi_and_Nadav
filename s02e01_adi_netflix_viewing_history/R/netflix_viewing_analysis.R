@@ -90,9 +90,10 @@ netflix_adi_chart_data %>%
   theme_minimal() + 
   xlab("") + 
   ylab("Hours") + 
-  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> duration 2019-2023* in Adi's profile",
+  labs(title = "Total <span style = 'color:#db0000;'>Netflix</span> viewing duration 2019-2023* in Adi's profile",
        subtitle = "PC and Smart TV declining in favor of Mobile",
-       caption = "* The 2023 data was factored to accomodate for 12 months (actual data exists up to July 30th)") + 
+       caption = "* The 2023 data was factored to accomodate for 12 months (actual data exists up to July 30th)\n
+       https://adisarid.github.io") + 
   theme(legend.position = "none", 
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank()) + 
@@ -138,13 +139,19 @@ label_watch_distribution <- base_watch_distribution %>%
 base_watch_distribution %>% 
   ggplot(aes(x = year, y = total_duration_hr, fill = viewtime_fct)) + 
   geom_col(position = position_fill()) +
-  scale_fill_brewer(palette = "Reds") + 
+  scale_fill_manual(values = c(
+    "#ffe577",
+    "#fec051",
+    "#ff8967",
+    "#fd6051",
+    "#392033"
+  )) + 
   theme_minimal() + 
   theme(panel.grid = element_blank(),
         plot.title = element_markdown(),
         legend.title = element_blank(),
         legend.position = "right",
-        legend.justification = "right") + 
+        legend.justification = "top") + 
   scale_y_continuous(labels = scales::percent) + 
   ylab("") + 
   xlab("") + 
@@ -154,5 +161,6 @@ base_watch_distribution %>%
   geom_label(data = label_watch_distribution, inherit.aes = FALSE,
              aes(x = year, y = prop,
                  label = glue::glue("{round(prop*100)}%"))) +
-  labs(title = "<span style = 'color:#db0000;'>Netflix</span> viewing distribution during the day (in Adi's profile)",
-       subtitle = "During 2023 late bingeing decreased significantly (from 45-59% to 27%)") 
+  labs(title = "Adi's <span style = 'color:#db0000;'>Netflix</span> viewing distribution during the day",
+       subtitle = "During 2023 late bingeing decreased significantly (from 45-59% to 27%)",
+       caption = "https://adisarid.github.io") 
