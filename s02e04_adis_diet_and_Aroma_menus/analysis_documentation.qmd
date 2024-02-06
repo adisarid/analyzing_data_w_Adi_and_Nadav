@@ -1,0 +1,141 @@
+---
+title: "Analyzing the Aroma Menu"
+author: "Adi and Nadav!"
+format: html
+editor: visual
+---
+
+## Background
+
+We downloaded the data using scraping, see \`aroma_scraping_code.R\` for details on how.
+
+But now we're focused on having fun with the data (and contributing to Adi's diet).
+
+```{r}
+#| warning: false
+#| message: false
+library(tidyverse)
+aroma <- read_csv("data/aroma_menu.csv") %>% 
+  mutate(serial = seq_along(item)) %>% 
+  mutate(dish_type = case_when(between(serial, 1, 19) ~ "Hot drinks",
+                               between(serial, 20, 49) ~ "Baked",
+                               between(serial, 50, 75) ~ "Sandwiches",
+                               between(serial, 76, 80) ~ "Salads",
+                               between(serial, 81, 87) ~ "Breakfast",
+                               between(serial, 88, 92) ~ "Bowl",
+                               between(serial, 93, 101) ~ "Toast",
+                               between(serial, 102, 107) ~ "Soup",
+                               between(serial, 108, 145) ~ "Cold drinks",
+                               between(serial, 146, 149) ~ "Bread",
+                               between(serial, 150, 154) ~ "Condiments"))
+
+theme_set(theme_bw())
+```
+
+## The distribution of caloric values in Aroma dishes
+
+```{r caloric value}
+aroma %>% 
+  ggplot(aes(x = `אנרגיה (קלוריות)`)) +
+  geom_histogram() + 
+  ggtitle("Caloric value historgam")
+
+aroma %>% 
+  add_count(dish_type) %>% 
+  filter(n >= 7) %>% 
+  ggplot(aes(x = `אנרגיה (קלוריות)`,
+             color = dish_type)) + 
+  geom_density() + 
+  ggtitle("Caloric value density",
+          subtitle = "Categories with >= 7 items")
+
+aroma %>% 
+  add_count(dish_type) %>% 
+  filter(n <= 6) %>% 
+  ggplot(aes(x = `אנרגיה (קלוריות)`,
+             color = dish_type)) + 
+  geom_density() + 
+  ggtitle("Caloric value density",
+          subtitle = "Categories with <= 6 items")
+```
+
+## Relationships between nutrients
+
+The following set of charts examines the relationships of various nutrients in dishes.
+
+```{r relationships}
+aroma %>% 
+  ggplot(aes(x = `אנרגיה (קלוריות)`,
+             y = `סך הפחמימות (גרם)`)) + 
+  geom_point() + 
+  stat_smooth(method = "lm") + 
+  ggtitle("Relationship of caloric value and carbs")
+
+aroma %>% 
+  ggplot(aes(x = `אנרגיה (קלוריות)`,
+             y = `חלבונים (גרם)`)) + 
+  geom_point() + 
+  stat_smooth(method = "lm") + 
+  ggtitle("Relationship of caloric value and proteins")
+```
+
+## A linear model
+
+Building a linear model that explains caloric value. Nadav's hypothesis is that Sodium does not affect caloric value. Let's see...
+
+```{r linear model}
+aroma_prep_lm <- aroma %>% 
+  select(-item, -serial, -dish_type)
+
+aroma_lm <- lm(formula = 
+                 `אנרגיה (קלוריות)` ~ .,
+               data = aroma_prep_lm)
+
+gtsummary::tbl_regression(aroma_lm)
+```
+
+## The dietary salads/bowls
+
+Zoom in on dietary dishes
+
+```{r salads and bowls}
+aroma %>% 
+  filter(dish_type %in% c("Bowl", "Salads")) %>% 
+  ggplot(aes(y = item, x = `אנרגיה (קלוריות)`)) + 
+  geom_col(fill = "tomato") +
+  facet_wrap(~dish_type, scales = "free_y") + 
+  ggtitle("Dish caloric value for Bowls and Salads") +
+  ylab("") + 
+  xlab("Calories")
+```
+
+```{r salads bowls calories and proteins}
+set.seed(0) # for consistent repeled labels
+aroma %>% 
+  filter(dish_type %in% c("Bowl", "Salads")) %>% 
+  ggplot(aes(y = `חלבונים (גרם)`, x = `אנרגיה (קלוריות)`)) + 
+  geom_point(aes(color = dish_type)) + 
+  ggrepel::geom_text_repel(aes(label = item)) +
+  ggtitle("Dish caloric and protein values for Aroma's Bowls and Salads") +
+  ylab("Proteins") + 
+  xlab("Calories") + 
+  theme(legend.justification = "top") + 
+  guides(color = guide_legend("Dish type")) + 
+  annotate("text", x = 600, y = 50, 
+           label = "High in proteins",
+           color = "blue") + 
+  annotate("curve", x = 710, y = 50,
+           xend = 750, yend = 52,
+           arrow = 
+             grid::arrow(angle = 30, length = unit(0.05, "inches"),
+                         ends = "last", type = "open")) +
+  annotate("text", x = 400, y = 43, 
+           label = "Optimal for workouts\n(high proteins, low calories)",
+           color = "blue") + 
+  annotate("segment", x = 500, y = 40,
+           xend = 360, yend = 38,
+           arrow =
+             grid::arrow(angle = 30, length = unit(0.05, "inches"),
+                         ends = "last", type = "open"))
+  
+```
