@@ -1,0 +1,60 @@
+library(tidyverse)
+library(ggtext)
+aroma <- read_csv("data/aroma_menu.csv") %>% 
+  left_join(read_csv("data/dish_dict.csv")) %>% 
+  mutate(serial = seq_along(item)) %>% 
+  mutate(dish_type = case_when(between(serial, 1, 19) ~ "Hot drinks",
+                               between(serial, 20, 49) ~ "Baked",
+                               between(serial, 50, 75) ~ "Sandwiches",
+                               between(serial, 76, 80) ~ "Salads",
+                               between(serial, 81, 87) ~ "Breakfast",
+                               between(serial, 88, 92) ~ "Bowl",
+                               between(serial, 93, 101) ~ "Toast",
+                               between(serial, 102, 107) ~ "Soup",
+                               between(serial, 108, 145) ~ "Cold drinks",
+                               between(serial, 146, 149) ~ "Bread",
+                               between(serial, 150, 154) ~ "Condiments"))
+
+theme_set(theme_bw() + 
+            theme(panel.grid = element_blank(),
+                  plot.subtitle = element_markdown(),
+                  legend.position = "top"))
+
+
+set.seed(0) # for consistent repeled labels
+aroma %>% 
+  filter(dish_type %in% c("Bowl", "Salads")) %>% 
+  ggplot(aes(y = `חלבונים (גרם)`, x = `אנרגיה (קלוריות)`)) + 
+  geom_point(aes(color = dish_type), size = 2) + 
+  ggrepel::geom_text_repel(aes(label = eng_name)) +
+  ggtitle("Choosing an 'Aroma' dish when you're on a workout regime",
+          subtitle = "The <b>Tunisian bowl</b> and <b>Chicken salad</b> exhibit nutritional advantages") +
+  ylab("Proteins") + 
+  xlab("Calories") + 
+  theme(legend.justification = "left") + 
+  guides(color = guide_legend("Dish type:")) + 
+  annotate("text", x = 550, y = 50, 
+           label = "Good for intense workouts\n(High in proteins, high in calories)",
+           color = "blue") + 
+  annotate("curve", x = 710, y = 50,
+           xend = 750, yend = 52,
+           arrow = 
+             grid::arrow(angle = 30, length = unit(0.05, "inches"),
+                         ends = "last", type = "open")) +
+  annotate("text", x = 390, y = 42, 
+           label = "Good for fitness\n(high proteins, low calories)",
+           color = "blue") + 
+  annotate("segment", x = 500, y = 40,
+           xend = 360, yend = 38,
+           arrow =
+             grid::arrow(angle = 30, length = unit(0.05, "inches"),
+                         ends = "last", type = "open")) + 
+  annotate("text", x = 900, y = 26, 
+           label = "Guilty pleasure\n(low proteins, high calories)",
+           color = "blue") #+ 
+  # annotate("curve", x = 900, y = 26,
+  #          xend = 1030, yend = 24,
+  #          angle = 270, curvature = 0.1,
+  #          arrow =
+  #            grid::arrow(angle = 30, length = unit(0.05, "inches"),
+  #                        ends = "last", type = "open"))
