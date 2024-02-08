@@ -1,0 +1,67 @@
+---
+title: "מה אוכלים היום?"
+subtitle: "סיור בתפריט ארומה למי ששומר על הגזרה, וגם למי שלא..."
+author: "עדי ונדב"
+format:
+  html:
+    code-fold: true
+    css: styles.css
+editor: visual
+---
+
+# הסברים
+
+התרשים הזה נוצר על ידינו (עדי ונדב), במסגרת הוידאו-פודקאסט שלנו "עדי ונדב מנתחים נתונים".
+
+אנחנו סתם השתעשנו עם הנתונים כי עדי בסוג של דיאטה וגילה שמנת Bowl מקסיקני בארומה, היא בעצם המנה העתירת קלוריות ביותר בתפריט (אחרי שאכל אותה...).
+
+בקיצור, הקלטנו את עצמנו מנתחים את הנתונים הללו, ואפשר לצפות בהקלטה בעמוד שלנו פה:
+
+[https://www.youtube.com/\@adinadavdata](https://www.youtube.com/@adinadavdata)
+
+אפשר גם פשוט להתנסות בעצמכם במנות. בתרשים הבא אפשר להדליק ולכבות סוגי מנות שונים, ולסייר בין המנות. בעיקרון ככל שמנות נמצאות גבוה בצד שמאל אז יש להן הרבה חלבונים ומעט קלוריות (טוב לfitness). ככל שמנות נמצאות יותר למטה ובצד ימין הן עתירות בקלוריות ופחות מועילות מבחינת חלבונים.
+
+אם אתם רוצים ליצור איתנו קשר, אז אפשר לפנות אלי פה: [adisarid.github.io](https://adisarid.github.io).
+
+בתאבון.
+
+```{r plotly stuff}
+#| warning: false
+#| message: false
+library(tidyverse)
+library(plotly)
+aroma <- read_csv("data/aroma_menu.csv") %>% 
+  mutate(serial = seq_along(item)) %>% 
+  mutate(dish_type = case_when(between(serial, 1, 19) ~ "משקאות חמים",
+                               between(serial, 20, 49) ~ "מאפים",
+                               between(serial, 50, 75) ~ "סנדוויצ'ים",
+                               between(serial, 76, 80) ~ "סלטים",
+                               between(serial, 81, 87) ~ "ארוחות בוקר",
+                               between(serial, 88, 92) ~ "קעריות BOWL",
+                               between(serial, 93, 101) ~ "טוסטים",
+                               between(serial, 102, 107) ~ "מרקים",
+                               between(serial, 108, 145) ~ "משקאות קרים",
+                               between(serial, 146, 149) ~ "לחם",
+                               between(serial, 150, 154) ~ "רטבים")) %>% 
+  mutate(dish_type = as.factor(dish_type)) %>% 
+  rename(calories = `אנרגיה (קלוריות)`,
+         protein = `חלבונים (גרם)`) %>% 
+  filter(calories > 0)
+
+theme_set(theme_bw())
+
+plot <- plot_ly(aroma, x = ~calories, y = ~protein, 
+                text = ~item,
+                color = ~dish_type, mode = "markers", 
+                marker = list(size = 10, 
+                              opacity = 0.8)) %>%
+  layout(title = "קלוריות מול חלבונים במנות ארומה",
+         xaxis = list(title = "קלוריות"),
+         yaxis = list(title = "חלבון [גרם]"),
+         showlegend = TRUE)
+
+# Display the plot
+plot
+```
+
+אנחנו לא לוקחים אחריות על הנתונים. שאבנו אותם מהאתר של ארומה. הקוד המלא לשחזור הנתונים והניתוח שביצענו נמצא [בקישור](https://github.com/adisarid/analyzing_data_w_Adi_and_Nadav/tree/main/s02e04_adis_diet_and_Aroma_menus).
