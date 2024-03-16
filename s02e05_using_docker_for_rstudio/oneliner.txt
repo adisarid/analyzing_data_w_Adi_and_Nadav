@@ -1,0 +1,5 @@
+docker build -t tidyverse-renv .
+
+docker run --rm -ti -e DISABLE_AUTH=true -p 127.0.0.1:8787:8787 -v /home/ubuntu/rstudio_volume:/home/rstudio tidyverse-renv
+
+# For more info you can visit this tutorial https://github.com/RamiKrispin/rstudio-docker-template/tree/main
