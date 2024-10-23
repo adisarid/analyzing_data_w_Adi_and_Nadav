@@ -39,10 +39,8 @@ server <- function(input, output) {
     showElement("loading")
     
     # Call the chat_async function
-    result_async <- future({
-      chat$chat_async("Answer this question:",
-                      input$user_query)
-    })
+    result_async <- chat$chat_async("Answer this question:",
+                                    input$user_query)
     
     # Using the promises notation, this will run once the chat result comes through
     result_async %...>% {
@@ -52,6 +50,7 @@ server <- function(input, output) {
         markdown(.) # The `.` is the chat result, markdown is just used to turn content into html.
       })
     } %...!% {
+      # Error handling
       output$chat_response <- renderUI({
         p("Something went wrong... :(")
       })

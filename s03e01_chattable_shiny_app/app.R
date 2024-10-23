@@ -106,12 +106,10 @@ server <- function(input, output) {
     )
     
     # Call the chat_async function
-    result_async <- future({
-    chat$chat_async("
+    result_async <- chat$chat_async("
     Explain this plot in one paragraph, as suitable for decision makers. 
     You should briefly describe the plot type, the axes, and 2-5 major visual patterns.",
                                     the_plot_content)
-    })
     
     result_async %...>% {
       # Update the modal once the result is available
