@@ -2,7 +2,8 @@ library(shiny)
 library(tidyverse)
 library(bslib)
 library(elmer)
-
+library(promises)
+library(future)
 
 # Init required data -----------------------------------------------------
 aroma <- read_csv("data/aroma_menu.csv") %>% 
@@ -32,9 +33,9 @@ ui <- page_sidebar(
     title = "Controls",
     numericInput("bins", "Number of bins", 30),
     selectInput("dish_type", "Type of dish", 
-    selected = "Salads",
-    choices = dish_choices,
-    multiple = TRUE),
+                selected = "Salads",
+                choices = dish_choices,
+                multiple = TRUE),
     selectInput(
       "chart_type", 
       "Chart type",
@@ -49,39 +50,39 @@ ui <- page_sidebar(
 )
 
 server <- function(input, output) {
-
+  
   aroma_reactive <- reactive({
     aroma |> 
       filter(dish_type %in% input$dish_type)
   }) |> 
     debounce(500)
-
+  
   aroma_reactive_plot <- reactive({
-
+    
     if (input$chart_type == "hist"){
       plt <- ggplot(aroma_reactive(), aes(`אנרגיה (קלוריות)`)) + 
         geom_histogram(bins = input$bins)
     } else {
       plt <- ggplot(aroma_reactive(), 
-      aes(
-        x = `אנרגיה (קלוריות)`,
-        y = `חלבונים (גרם)`
-      )) + 
+                    aes(
+                      x = `אנרגיה (קלוריות)`,
+                      y = `חלבונים (גרם)`
+                    )) + 
         geom_point(aes(color = dish_type))
     }
-
+    
     plt + theme_bw()
-
+    
   })
-
+  
   output$aroma_chart <- renderPlot({
-
+    
     aroma_reactive_plot()
-
+    
   })
-
+  
   observeEvent(input$retrieve_insights, {
-
+    
     # First, save the plot using the plot reactive
     filename <- "temporary_files/temporary_aroma_plot.png"
     ggsave(
@@ -89,33 +90,60 @@ server <- function(input, output) {
       plot = aroma_reactive_plot(), 
       width = 768, height = 768, unit = "px"
     )
-
+    
     the_plot_content <- content_image_file(filename)
-
-    result <- chat$chat("
-    Explain this plot in one paragraph, as suitable for decision makers. 
-    You should briefly describe the plot type, the axes, and 2-5 major visual patterns.",
-    the_plot_content)
-
+    
+    # Show the loading spinner
+    # Show modal with a loading message while waiting for the result
     showModal(
       modalDialog(
-        title = "Here are ChatGPT's take on your chart",
-        markdown(result),
-        easyClose = TRUE,
-        footer = tagList(
-          modalButton("Thanks!")
-        )
+        title = "Processing...",
+        div(class = "spinner-border text-primary", role = "status",
+            span(class = "sr-only")),
+        p("ChatGPT is processing your request. Please wait..."),
+        easyClose = FALSE
       )
     )
-  })
-
+    
+    # Call the chat_async function
+    result_async <- future({
+    chat$chat_async("
+    Explain this plot in one paragraph, as suitable for decision makers. 
+    You should briefly describe the plot type, the axes, and 2-5 major visual patterns.",
+                                    the_plot_content)
+    })
+    
+    result_async %...>% {
+      # Update the modal once the result is available
+      removeModal()  # Remove the loading modal
+      showModal(
+        modalDialog(
+          title = "Here is ChatGPT's take on your chart",
+          markdown(.),
+          easyClose = TRUE,
+          footer = tagList(
+            modalButton("Thanks!")
+          )
+        )
+      ) 
+    } %...!% {
+      # Handle errors if any
+      removeModal()
+      showModal(modalDialog(
+        title = "Error",
+        "There was an error processing your request. Please try again.",
+        easyClose = TRUE
+      ))
+    }
+    })
+  
   onStop(function(){
     filename <- "temporary_files/temporary_aroma_plot.png"
     if (file.exists(filename)){
       file.remove(filename)
     }
   })
-}
+  }
 
 # Run the app
 shinyApp(ui = ui, server = server)
