@@ -1,9 +1,8 @@
 library(shiny)
 library(bslib)
 library(elmer)
-library(promises)
-library(future)
 library(shinyjs)
+library(promises)
 
 # Initialize chat
 chat <- chat_openai(

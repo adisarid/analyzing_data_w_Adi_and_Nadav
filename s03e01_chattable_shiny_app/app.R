@@ -3,7 +3,6 @@ library(tidyverse)
 library(bslib)
 library(elmer)
 library(promises)
-library(future)
 
 # Init required data -----------------------------------------------------
 aroma <- read_csv("data/aroma_menu.csv") %>% 
