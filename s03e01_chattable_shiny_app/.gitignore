@@ -1,0 +1,8 @@
+# Ignore the renv/ folder
+renv/
+
+# Ignore the environment folder with the openai key
+.Renviron
+
+# Ignore temporary image files
+temporary_files/
