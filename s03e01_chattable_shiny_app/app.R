@@ -21,11 +21,6 @@ aroma <- read_csv("data/aroma_menu.csv") %>%
                                between(serial, 150, 154) ~ "Condiments"))
 dish_choices <- unique(aroma$dish_type)
 
-# Initialize chat
-chat <- chat_openai(
-  system_prompt = "You are an analyst that can explain chart to decision makers, and you also really like building lego."
-)
-
 ui <- page_sidebar(
   title = "Interactive chat about charts",
   sidebar = sidebar(
@@ -50,6 +45,11 @@ ui <- page_sidebar(
 
 server <- function(input, output) {
   
+  # Initialize chat
+  chat <- chat_openai(
+    system_prompt = "You are an analyst that can explain chart to decision makers, and you also really like building lego."
+  )
+
   aroma_reactive <- reactive({
     aroma |> 
       filter(dish_type %in% input$dish_type)
@@ -67,7 +67,7 @@ server <- function(input, output) {
                       x = `אנרגיה (קלוריות)`,
                       y = `חלבונים (גרם)`
                     )) + 
-        geom_point(aes(color = dish_type))
+        geom_point(aes(color = dish_type), size = 4)
     }
     
     plt + theme_bw()
