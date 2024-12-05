@@ -77,7 +77,8 @@ tbl(con, "mot_tbl") %>%
 
 # When was the vehicle on-road?
 
-theme_set(theme_minimal())
+theme_set(theme_minimal() + 
+            theme(legend.justification = "top", panel.grid = element_blank()))
 
 # Monthly data:
 tbl(con, "mot_tbl") %>% 
@@ -135,13 +136,22 @@ percent_electric_tbl <- tbl(con, "mot_tbl") %>%
   mutate(prop = n/sum(n)) %>% 
   collect()
 
-percent_electric_tbl %>% 
+percent_owner_plot <- percent_electric_tbl %>% 
   filter(sug_delek_nm == "חשמל") %>% 
+  mutate(baalut = case_match(baalut,
+                             "פרטי" ~ "Private",
+                             "חברה" ~ "Company",
+                             "סוחר" ~ "Dealership",
+                             "ליסינג" ~ "Leasing",
+                             "השכרה" ~ "Rental")) %>% 
   ggplot(aes(x = shnat_yitzur, y = prop, color = baalut)) + 
   geom_line() + 
   geom_point() +
   ggtitle("Percent of electric vehicles by ownership type and year") + 
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent) + 
+  guides(color = guide_legend("Ownership")) + 
+  ylab("Proportion of electric vehicles") + 
+  xlab("Year")
 
 # remotes::install_github("tidyverse/elmer")
 
@@ -181,9 +191,13 @@ countries_clean <- chat$chat(glue::glue("Take this list of model names, and extr
           
           "))
 
+# Retain LLM output
+countries_clean <- 
+  "הונג|מקסיקו|צרפת|סין|ארה''ב|גרמנ|קוריאה|בלגיה|אנגליה|גרמניה|יפן|רומניה|ספרד|סלוב|איטליה|צ'כיה|סלובקיה|אוסטריה|פולין"
+
 car_models_cln <- car_models %>% 
   mutate(tozeret_nm = str_remove_all(tozeret_nm, countries_clean)) %>% 
-  mutate(tozeret_nm = str_remove_all(tozeret_nm, "ארהב|גרמנ|הולנד|סלוב|-")) %>% 
+  mutate(tozeret_nm = str_remove_all(tozeret_nm, "יה|ארהב|גרמנ|הולנד|סלוב|-")) %>% 
   mutate(tozeret_nm = str_squish(tozeret_nm)) %>% 
   group_by(tozeret_nm, shnat_yitzur) %>% 
   summarize(n = sum(n))
@@ -195,10 +209,20 @@ top5_2024 <- car_models_cln %>%
   slice(1:5) %>% 
   select(tozeret_nm)
 
-car_models_cln %>% 
+car_models_p <- car_models_cln %>% 
   semi_join(top5_2024) %>% 
-  ggplot(aes(x = shnat_yitzur, y = n, color = tozeret_nm)) +
+  mutate(tozeret_nm_new = case_match(tozeret_nm,
+                                 "בי ווי די" ~ "BYD",
+                                 "גילי" ~ "Geely",
+                                 "טסלה" ~ "Tesla",
+                                 "מ.ג" ~ "MG",
+                                 "צ'רי" ~ "Chery"
+                                 )) %>%
+  ggplot(aes(x = shnat_yitzur, y = n, color = tozeret_nm_new)) +
   geom_line() + 
   geom_point() + 
   ggtitle("Top 5 manufacturers since 2020",
-          subtitle = "Top 5 based on 2024 sales")
+          subtitle = "(Top 5 based on 2024 sales, up to Q3/24)") + 
+  xlab("Year") + 
+  ylab("Cars sold") + 
+  guides(color = guide_legend("Brand"))
