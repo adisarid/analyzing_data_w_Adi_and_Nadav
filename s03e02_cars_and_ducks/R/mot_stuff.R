@@ -209,6 +209,14 @@ top5_2024 <- car_models_cln %>%
   slice(1:5) %>% 
   select(tozeret_nm)
 
+brand_colors <- c(
+  BYD = "#8B8000",    # Example: Bright Yellow
+  Chery = "#FF6600",  # Example: Orange
+  Geely = "#0000FF",  # Example: Blue
+  MG = "#008000",     # Example: Green
+  Tesla = "#CC0000"   # Example: Dark Red
+)
+
 car_models_p <- car_models_cln %>% 
   semi_join(top5_2024) %>% 
   mutate(tozeret_nm_new = case_match(tozeret_nm,
@@ -218,11 +226,42 @@ car_models_p <- car_models_cln %>%
                                  "מ.ג" ~ "MG",
                                  "צ'רי" ~ "Chery"
                                  )) %>%
-  ggplot(aes(x = shnat_yitzur, y = n, color = tozeret_nm_new)) +
-  geom_line() + 
+  ggplot(aes(x = shnat_yitzur, y = n, color = tozeret_nm_new,
+             alpha = tozeret_nm_new)) +
+  geom_line(size = 1) + 
   geom_point() + 
-  ggtitle("Top 5 manufacturers since 2020",
-          subtitle = "(Top 5 based on 2024 sales, up to Q3/24)") + 
+  ggtitle("Top 5 EV sales: trends in Israel since 2020",
+          subtitle = "BYD Emerges as Dominant Force: Leading the Charge in the EV Market
+MG and Chery also on the rise") + 
   xlab("Year") + 
   ylab("Cars sold") + 
-  guides(color = guide_legend("Brand"))
+  guides(color = guide_legend("Brand"),
+         alpha = "none") + 
+  labs(caption = 
+         "Based on ministry of transportation data data.gov.il
+          Top 5 is based on 2024 sales up to Q3") + 
+  scale_y_continuous(labels = ~scales::number(., 
+                                              scale_cut = scales::cut_short_scale())) + 
+  theme(panel.grid.major.y = element_line(color = "grey", linewidth = 0.5)) +#,
+        # panel.background = element_rect(fill = "#F5F5F5")) + 
+  scale_color_manual(values = brand_colors) + 
+  scale_alpha_manual(values = c(BYD = 1,
+                                Chery = 1,
+                                Geely = 0.3,
+                                MG = 1,
+                                Tesla = 0.3))
+
+car_models_p
+
+chat$chat("Define a vector with brand colors for: 
+          BYD, Chery, Geely, MG, Tesla, to be incorporated in the 
+          legend of the plot instead of the current",
+          elmer::content_image_plot())
+
+chat$chat("Create a variation where BYD is visibly different than Tesla. Retain the tesla color just suggest an alternative to BYD")
+
+chat$chat("Suggest a light background color instead of the white to improve visibility of BYD")
+
+chat$chat("Suggest a ssubtitle that encompasses the interesting insight about BYD vs Tesla")
+
+chat$chat("Suggest a ssubtitle about BYD supremacy")
