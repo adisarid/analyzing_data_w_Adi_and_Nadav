@@ -77,9 +77,6 @@ tbl(con, "mot_tbl") %>%
 
 # When was the vehicle on-road?
 
-theme_set(theme_minimal() + 
-            theme(legend.justification = "top", panel.grid = element_blank()))
-
 # Monthly data:
 tbl(con, "mot_tbl") %>% 
   count(moed_aliya_lakvish, sug_delek_nm) %>% 
@@ -210,14 +207,14 @@ top5_2024 <- car_models_cln %>%
   select(tozeret_nm)
 
 brand_colors <- c(
-  BYD = "#8B8000",    # Example: Bright Yellow
+  BYD = "#FF0000",    # Example: Bright Yellow
   Chery = "#FF6600",  # Example: Orange
   Geely = "#0000FF",  # Example: Blue
   MG = "#008000",     # Example: Green
-  Tesla = "#CC0000"   # Example: Dark Red
+  Tesla = "black"   # Example: Dark Red
 )
 
-car_models_p <- car_models_cln %>% 
+car_models_tib <- car_models_cln %>% 
   semi_join(top5_2024) %>% 
   mutate(tozeret_nm_new = case_match(tozeret_nm,
                                  "בי ווי די" ~ "BYD",
@@ -225,17 +222,38 @@ car_models_p <- car_models_cln %>%
                                  "טסלה" ~ "Tesla",
                                  "מ.ג" ~ "MG",
                                  "צ'רי" ~ "Chery"
-                                 )) %>%
+                                 ))
+
+brand_images <- 
+  tibble(brand = names(brand_colors),
+         image_path = c(
+           "logos/BYD.png",
+           "logos/Chery_logo.png",
+           "logos/Geely.png",
+           "logos/Mg.png",
+           "logos/Tesla.png"
+         ),
+         x = 2024.25) %>% 
+  left_join(car_models_tib %>% 
+              filter(shnat_yitzur == 2024) %>% 
+              ungroup() %>% 
+              select(tozeret_nm_new, n), 
+            by = c(brand = "tozeret_nm_new")) %>% 
+  mutate(n = if_else(brand == "Chery", n - 750, n))
+
+theme_set(theme_minimal(base_family = "Rubik") + 
+            theme(legend.justification = "top", panel.grid = element_blank()))
+
+car_models_p <- car_models_tib %>% 
   ggplot(aes(x = shnat_yitzur, y = n, color = tozeret_nm_new,
              alpha = tozeret_nm_new)) +
   geom_line(size = 1) + 
   geom_point() + 
-  ggtitle("Top 5 EV sales: trends in Israel since 2020",
-          subtitle = "BYD Emerges as Dominant Force: Leading the Charge in the EV Market
-MG and Chery also on the rise") + 
+  ggtitle("Top 5 EV sales: trends in Israel 2020-2024 (Q3)",
+          subtitle = "BYD leading the Charge in the EV Market (MG and Chery also on the rise)") + 
   xlab("Year") + 
   ylab("Cars sold") + 
-  guides(color = guide_legend("Brand"),
+  guides(color = "none",
          alpha = "none") + 
   labs(caption = 
          "Based on ministry of transportation data data.gov.il
@@ -246,10 +264,14 @@ MG and Chery also on the rise") +
         # panel.background = element_rect(fill = "#F5F5F5")) + 
   scale_color_manual(values = brand_colors) + 
   scale_alpha_manual(values = c(BYD = 1,
-                                Chery = 1,
-                                Geely = 0.3,
-                                MG = 1,
-                                Tesla = 0.3))
+                                Chery = 0.6,
+                                Geely = 0.6,
+                                MG = 0.6,
+                                Tesla = 0.6)) +
+  geom_text(data = brand_images,
+             aes(x = x, y = n, label = brand,
+                 color = brand, alpha = brand),
+            inherit.aes = F, show.legend = F)
 
 car_models_p
 
@@ -265,3 +287,30 @@ chat$chat("Suggest a light background color instead of the white to improve visi
 chat$chat("Suggest a ssubtitle that encompasses the interesting insight about BYD vs Tesla")
 
 chat$chat("Suggest a ssubtitle about BYD supremacy")
+
+chat$chat("How do i incorporate logos in a ggplot?")
+
+chat$chat("
+Improve:
+
+🚗🔋 Power Shift in the EV Market: BYD Is in the Lead** 🔋🚗    
+(Actually, has been since last year).
+
+Based on an analysis of the ministry of transportation data 2020-2024 (Q3) the top 
+five brands are BYD, MG, Tesla, Geely, and Chery.
+
+- **BYD** emerges as a dominant force, setting new benchmarks for innovation and 
+market presence.
+- **MG** and **Chery** are also climbing, showcasing strong growth and competitive 
+strategies.
+- This shift highlights the dynamic nature of the automotive industry and underscores 
+the importance of adaptability and innovation - Tesla started strong in 2021 but is now behind.
+
+As the EV landscape evolves, staying ahead of these trends becomes crucial for 
+stakeholders and consumers alike. 
+
+What do you think this means for the future of electric vehicles? 🤔 Share your 
+thoughts in the comments! 
+
+#EV #BYD #Innovation #MarketTrends #Sustainability #AutomotiveIndustry
+          ")
